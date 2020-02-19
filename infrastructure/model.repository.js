@@ -1,31 +1,35 @@
-var model = {};
-const { Op } = require("sequelize");
+module.exports = (filename) => {
+    var module = {};
 
-class Repo {
+    const model =  sequelize['import'](filename),
+        { Op } = require("sequelize");
 
-    constructor(filename){
-        model = sequelize['import'](filename);
+    module.create = async (params) => {
+        return await model.create(params);
     }
 
-    op(){
-        return Op;
-    }
+    module.retrieve = async (id = null,params) => {   
+        var condition = {};
+        var filter = [];
 
-    model(){
-        return model;
-    }
+        if (id != null)
+            condition.id = {[Op.eq]: id};
 
-    create(object){
-        console.log(object);
-        return this.model().create(object);
-    }
+        console.log(params.filter);
 
-    retrieve(id = null,object){   
-        var condition = {id: {[this.op().eq]: id}};
-        return this.model().findAll({
+        if (params.filter != undefined){
+            console.log(1);
+            filter = params.filter.split(",");
+        }
+
+        for(var i = 0; i < filter.length; i++){
+            console.log(filter[i]);
+        }
+
+        return await model.findAll({
             where: condition
         });
     }
-}
 
-module.exports  = Repo;
+    return module;
+};

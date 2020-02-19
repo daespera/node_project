@@ -1,4 +1,4 @@
-const Repo = require('../../infrastructure/model.repository');
+/*const Repo = require('../../infrastructure/model.repository');
 
 
 class UserRepo extends Repo {
@@ -6,5 +6,9 @@ class UserRepo extends Repo {
         super('/home/ayannahpc/Workspace/node/components/users/users.model.js');
     }
 }
+*/
+//module.exports = UserRepo;
 
-module.exports = UserRepo;
+module.exports = {
+   ...require('../../infrastructure/model.repository')('/home/ayannahpc/Workspace/node/components/users/users.model.js'),
+};

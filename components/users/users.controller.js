@@ -1,7 +1,8 @@
 var Sequelize = require('sequelize'),
     model;
-const UsersRepo = require('./users.repository');
-const usersRepo = new UsersRepo();
+//const UsersRepo = require('./users.repository');
+//const usersRepo = new UsersRepo();
+const usersRepo = require('./users.repository');
 
 module.exports = {
    ...require('../../infrastructure/base.controller')(usersRepo),
