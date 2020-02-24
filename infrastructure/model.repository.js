@@ -9,25 +9,49 @@ module.exports = (filename) => {
     }
 
     module.retrieve = async (id = null,params) => {   
-        var condition = {};
+        var condition = params.filter != undefined ? {where : [{[Op.or]:[]}]} : {where : []};
         var filter = [];
 
-        if (id != null)
-            condition.id = {[Op.eq]: id};
+        const limit = params.size != undefined ? parseInt(params.size) : 5;
 
-        console.log(params.filter);
+        const offset = (params.page != undefined ? parseInt(params.page) : 1) * limit;
+
+        if (id != null)
+            condition.where.push({ id : {[Op.eq]: id} });
 
         if (params.filter != undefined){
-            console.log(1);
             filter = params.filter.split(",");
         }
 
         for(var i = 0; i < filter.length; i++){
-            console.log(filter[i]);
+            var constraints = filter[i].split(":");
+            var operation = constraints[2] != 'umdefined' ? constraints[2] : 'eq';
+            if (constraints[3]=='OR')
+                condition.where[0][Op.or].push({ [constraints[0]] : {[Op[operation]]: constraints[1]} });
+            else
+                condition.where.push({ [constraints[0]] : {[Op[operation]]: constraints[1]} });
         }
 
-        return await model.findAll({
-            where: condition
+        condition.offset = offset - limit;
+        condition.limit = limit;
+        return await model.findAll(
+            condition 
+        );
+    }
+
+    module.update = async (id = null,params) => {   
+        return await model.update(params, {
+            where: {
+                id: id
+            }
+        });
+    }
+
+    module.delete = async (id = null,params) => {   
+        return await model.destroy({
+            where: {
+                id: id
+            }
         });
     }
 
