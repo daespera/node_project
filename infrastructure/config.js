@@ -7,5 +7,7 @@ module.exports = {
     DB_HOST: process.env.DB_HOST,
     DB_PORT: process.env.DB_PORT,
     DB_TYPE: process.env.DB_TYPE,
-    PORT: process.env.PORT
+    PORT: process.env.PORT,
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_EXPIRATION: process.env.JWT_EXPIRATION
 };

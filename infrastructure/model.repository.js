@@ -4,6 +4,10 @@ module.exports = (filename) => {
     const model =  sequelize['import'](filename),
         { Op } = require("sequelize");
 
+    module.model = () => {
+        return model;
+    }
+
     module.create = async (params) => {
         return await model.create(params);
     }

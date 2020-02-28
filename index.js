@@ -10,6 +10,8 @@ require("./infrastructure/db.connection");
 
 const UsersRouter = require('./components/users/users.routes');
 
+const OAuthRouter = require('./components/oauth/oAuth.routes');
+
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Credentials', 'true');
@@ -26,23 +28,6 @@ app.use(function (req, res, next) {
 app.use(bodyParser.json());
 
 UsersRouter.routesConfig(app);
-
-app.get('/', (request, response) => {
-    const User = require('./components/users/User.Model');
-
-    sequelize
-      .authenticate()
-      .then(() => {
-        console.log('Connection has been established successfully.');
-      })
-      .catch(err => {
-        console.error('Unable to connect to the database:', err);
-      });
-
-    
-
-    response.send('done');
-
-});
+OAuthRouter.routesConfig(app);
 
 app.listen(PORT, () => console.log(`server started on port ${PORT}`));

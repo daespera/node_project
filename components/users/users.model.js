@@ -40,13 +40,6 @@ module.exports = function (sequelize, DataTypes) {
             beforeCreate: function(user, options, fn) {
                 user.password = user.password && user.password != "" ? bcrypt.hashSync(user.password, 10) : "";
             }
-        },
-        instanceMethods: {
-            toJSON: function () {
-                var values = Object.assign({}, this.get());
-                delete values.password;
-                return values;
-            }
         }
     });
 
@@ -56,6 +49,10 @@ module.exports = function (sequelize, DataTypes) {
         delete values.password;
         return values;
     }
+
+    User.prototype.validatePassword = function (password) {
+        return bcrypt.compareSync(password, this.password);
+    };
 
     return User;
 };

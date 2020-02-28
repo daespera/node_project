@@ -39,10 +39,11 @@ module.exports = (repo, db) => {
         }
     };
 
-    module.edit = (req, res) => {
-        return repo.update(req.params._id,req.body).then((model) => {
+    module.edit = async (req, res) => {
+        try {
+            const model = await repo.update(req.params._id,req.body);
             if (model != undefined) {
-                res.status(201);
+                res.status(200);
                 return res.send({
                     message: (model[0] ? req.params._id+" updated" : req.params._id+" not updated"),
                     updated: model[0]
@@ -52,21 +53,21 @@ module.exports = (repo, db) => {
             return res.send({
                 message: "Error updating."
             });
-        })
-        .catch(function(error) {
+        } catch(err) {
             res.status(400);
             return res.send({
-                message: "Error updating."
+                message: "something went wrong."
             });
-        });
+        }
     };
 
-    module.delete = (req, res) => {
-        return repo.delete(req.params._id).then((model) => {
+    module.delete = async (req, res) => {
+        try {
+            const model = await repo.delete(req.params._id);
             if (model != undefined) {
-                res.status(201);
+                res.status(200);
                 return res.send({
-                    message: (model[0] ? req.params._id+" deleted" : req.params._id+" not deleted"),
+                    message: (model[0] ? req.params._id+" deleted" : req.params._id+" deleted"),
                     deleted: model[0]
                 });
             }
@@ -74,13 +75,12 @@ module.exports = (repo, db) => {
             return res.send({
                 message: "Error deleting."
             });
-        })
-        .catch(function(error) {
+        } catch(err) {
             res.status(400);
             return res.send({
                 message: "Error deleting."
             });
-        });
+        }
     };
     return module;
 };
