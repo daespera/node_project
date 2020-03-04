@@ -10,5 +10,5 @@ class UserRepo extends Repo {
 //module.exports = UserRepo;
 
 module.exports = {
-   ...require('../../infrastructure/model.repository')('/home/ayannahpc/Workspace/node/components/users/users.model.js'),
+   ...require('../../infrastructure/model.repository')('./../components/users/users.model.js'),
 };

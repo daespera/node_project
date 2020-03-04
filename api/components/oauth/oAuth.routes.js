@@ -3,7 +3,7 @@ const OAuthController = require('./oAuth.controller'),
 
 exports.routesConfig = function (app) {
 
-    app.post('/oauth/token', [
+    app.post('/api/v1/oauth/token', [
         OAuthMiddleware.validateUser,
         OAuthController.issueToken
     ]);
