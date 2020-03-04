@@ -24,7 +24,7 @@ module.exports.issueToken = async (req, res) => {
         "id": req.body.id,
         "token" : bcrypt.hashSync((JWT_EXPIRATION + req.body.id + JWT_SECRET), 10),
         "iat": current,
-        //"nbf": parseInt(current) + parseInt(JWT_EXPIRATION),
+        "nbf": parseInt(current),
         "exp": parseInt((parseInt(current) + parseInt(JWT_EXPIRATION))) + parseInt(JWT_EXPIRATION)
 
     };
