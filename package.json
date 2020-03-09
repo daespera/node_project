@@ -14,12 +14,13 @@
     "sequelize": "^5.21.3"
   },
   "devDependencies": {
+    "concurrently": "^5.1.0",
     "nodemon": "^2.0.2",
     "sequelize-cli": "^5.5.1"
   },
   "scripts": {
     "start": "node index",
-    "dev": "nodemon index",
+    "dev": "concurrently --kill-others \"nodemon index\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "diogenes alejandro espera",
