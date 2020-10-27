@@ -44,11 +44,8 @@ module.exports = (filename) => {
     }
 
     module.update = async (id = null,params) => {   
-        return await model.update(params, {
-            where: {
-                id: id
-            }
-        });
+        var obj = await model.findByPk(id);
+        return await obj.update(params);
     }
 
     module.delete = async (id = null,params) => {   

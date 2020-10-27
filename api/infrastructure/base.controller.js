@@ -38,8 +38,8 @@ module.exports = (repo, db) => {
             const model = await repo.update(req.params._id,req.body);
             if (model != undefined) {
                 return res.status(200).send({
-                    message: (model[0] ? req.params._id+" updated" : req.params._id+" not updated"),
-                    updated: model[0]
+                    message: (model ? req.params._id+" updated" : req.params._id+" not updated"),
+                    updated: model
                 });
             }
             return res.status(400).send({

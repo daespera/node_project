@@ -6,7 +6,6 @@ const {
     DB_PORT,
     DB_TYPE
 } = require('./config');
-
 const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(DB_DATABASE, 

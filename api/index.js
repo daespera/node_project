@@ -4,13 +4,13 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-const { PORT } = require('./api/infrastructure/config');
+const { PORT } = require('./infrastructure/config');
 
-require("./api/infrastructure/db.connection");
+require("./infrastructure/db.connection");
 
-const UsersRouter = require('./api/components/users/users.routes');
+const UsersRouter = require('./components/users/users.routes');
 
-const OAuthRouter = require('./api/components/oauth/oAuth.routes');
+const OAuthRouter = require('./components/oauth/oAuth.routes');
 
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');

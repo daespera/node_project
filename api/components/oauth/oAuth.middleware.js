@@ -2,12 +2,33 @@ var Sequelize = require('sequelize'),
     jwt = require('jsonwebtoken'),
     model;
 
+const clientModel = () => {
+        return sequelize['import']('./oauth_clients.model.js');
+    };
+
 const usersRepo = require('./../users/users.repository'),
     bcrypt = require('bcrypt'),
     { JWT_SECRET, JWT_EXPIRATION } = require('./../../infrastructure/config');
 
+let getClient = async (id,secret) => {
+    let client =  await clientModel().findOne({
+        where: {
+            id: id,
+            secret: secret
+        }
+    });
+    return await client == null ? null : {clientid : client.id};
+}
+
 var grantType = {
+    client_credentials :  async (params) => {
+        return await getClient(params.client_id, params.secret);
+    },
     password :  async (params) => {
+        //let client = await this.client(params);
+        let client =  await getClient(params.client_id, params.secret);
+        if (client == null)
+            return await null;
         let user =  await usersRepo.model().findOne({
             where: {
                 email: params.user
@@ -16,6 +37,7 @@ var grantType = {
         if(!await user.validatePassword(params.password)){
             return await null;
         }
+        user.clientid = client.clientid;
         return await user;
     },
 
@@ -45,7 +67,7 @@ module.exports.validateUser = async (req, res, next) => {
         return res.status(400).send({
             message: "Invalid grant type."
         });
-    }        
+    }
 
     let user = await grantType[req.body.grant_type](req.body);
 
@@ -56,6 +78,7 @@ module.exports.validateUser = async (req, res, next) => {
     }
 
     req.body = {
+        client_id: user.clientid,
         id: user.id,
         email: user.email,
         first_name: user.first_name,
@@ -88,6 +111,7 @@ module.exports.validJWTNeeded = (req, res, next) => {
     } else {
         return res.status(401).send({
                 message: "Invalid credentials."
+
             }
         );
     }
