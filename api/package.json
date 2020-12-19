@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "bcrypt": "^5.0.0",
+    "bcrypt": ">=5.0.0",
     "body-parser": "^1.19.0",
     "core-util-is": "^1.0.2",
     "dotenv": "^8.2.0",
@@ -19,10 +19,10 @@
     "sequelize-cli": "^5.5.1"
   },
   "scripts": {
-    "inspect": "kill-port --port 9229 && node --inspect=0.0.0.0:9229 build/startup.js",
-    "start_watch_inspect": "nodemon --delay 80ms --watch build/ build/startup.js --exec 'npm run inspect'",
     "start": "nodemon index.js",
-    "dev": "nodemon index.js",
+    "server": "node index.js",
+    "client" : "cd ../client && npm start",
+    "dev" : "concurrently -n 'server,client' \"npm run server \" \"npm run client\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "diogenes alejandro espera",

@@ -7,7 +7,6 @@ const {
     DB_TYPE
 } = require('./config');
 const Sequelize = require("sequelize");
-console.log(DB_TYPE);
 
 const sequelize = new Sequelize(DB_DATABASE, 
     DB_USER, 

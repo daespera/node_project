@@ -23,12 +23,16 @@ phpmyadmin:
     - MYSQL_PASSWORD=secret
     - MYSQL_ROOT_PASSWOR=root
   restart: always
-nodejs:
-  build: ./api
-  volumes:
-      - ./api:/home/app/
-      - /home/app/node_modules
-  links:
+client:
+    build: ./client
+    ports:
+      - "3000:3000"
+      - "9856:9856"
+    links:
     - db
-  ports:
-    - 5000:5000
+    stdin_open: true
+    volumes:
+       - ./client:/home/app/
+       - /home/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
