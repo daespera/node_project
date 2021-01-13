@@ -12,7 +12,12 @@ module.exports = (filename) => {
         return await model.create(params);
     }
 
-    module.retrieve = async (id = null,params) => {   
+    module.retrieve = async (id = null,params) => {
+        console.log("test");
+        console.log(params.where);
+
+
+
         var condition = params.filter != undefined ? {where : [{[Op.or]:[]}]} : {where : []};
         var filter = [];
 

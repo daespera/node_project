@@ -18,6 +18,10 @@ code {
   align-items: stretch;
 }
 
+.card-header {
+  padding: .15rem 1rem !important;
+}
+
 /* ---------------------------------------------------
     CONTENT STYLE
 ----------------------------------------------------- */
@@ -29,6 +33,9 @@ code {
   -o-transition: all 0.3s;
   transition: all 0.3s; }
 
+.btn:focus {
+  box-shadow: none !important;
+}
 
 /* ---------------------------------------------------
     SIDEBAR STYLE

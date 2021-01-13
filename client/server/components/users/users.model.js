@@ -16,6 +16,12 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.STRING(35),
             allowNull: false
         },
+        type: {
+            type: DataTypes.ENUM({
+              values: ['ADMIN', 'SUPER_USER', 'USER']
+            }),
+            allowNull: false
+        },
         email: {
             type: DataTypes.STRING(35),
             allowNull: false,

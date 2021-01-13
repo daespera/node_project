@@ -13,6 +13,9 @@ exports.routesConfig = function (app) {
         email: Joi.string()
             .email()
           .required(),
+        type: Joi.string()
+            .valid('ADMIN', 'SUPER_USER', 'USER')
+          .required(),
         password: Joi.string()
           .regex(/[a-zA-Z0-9]{3,30}/)
           .required(),

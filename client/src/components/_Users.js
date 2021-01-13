@@ -1,14 +1,9 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useToast } from "./Toast/ToastProvider";
 
-import FilterBuilder from "./Utility/Filter/FilterBuilder";
-
-
-
 const Users = () => {
   const { addToast } = useToast(),
-    [where,setWhere] = useState({combinator: "and",rules: []}),
     [data, setData] = useState({users: []}),
     [size, setSize] = useState(5),
     [page, setPage] = useState(1),
@@ -21,25 +16,7 @@ const Users = () => {
       password: ""
     }),
     [filters,setFilters] = useState([]),
-    [textBoxError, setTextBoxError] = useState([]),
-    filterFields = {id:"ID",
-      last_name:"Last Name",
-      first_name:"First Name",
-      email:"Email",
-      type:"Type"},
-    [lastListDate, setLastListDate] = useState('');
-
-  //_where = {...where,...test};
-  /* let rule = [{
-        "field": "firstName",
-        "operator": "null",
-        "value": ""
-      }];
-  setWhere({rules: [...where.rules,rule]});
-  rule = [{combinator: "and",rules: []}];
-  ///_where.rules = [..._where.rules,...rule];
-  console.log(where); */
-
+    [textBoxError, setTextBoxError] = useState([]);
 
   let handleChange = e => {
     const value = e.target.value;
@@ -49,7 +26,23 @@ const Users = () => {
     });
   },
 
-  Save = async e => {
+  handleFilterChange = (e,index,prop) => {
+    const _filters = [...filters];
+    _filters[index][prop] = e.target.value;
+    setFilters(
+      _filters
+    );
+  },
+
+  removeFilter = (index) => {
+    const _filters = [...filters];
+    _filters.splice(index, 1);
+    setFilters(
+      _filters
+    );
+  },
+
+  Save = async () => {
     var _response;
     var statusCode;
     setTextBoxError([]);
@@ -101,7 +94,7 @@ const Users = () => {
     }
   },
 
-  Fetch = async (scrolling = false) => {
+  Fetch = async () => {
     console.log('filter');
     console.log(filters.length);
     var statusCode;
@@ -112,15 +105,6 @@ const Users = () => {
     },
     filter = {filters: [...filters]};
     params = filters.length ? {...params, filter} : params;
-    let _where = {where: where};
-
-    if(scrolling){
-      console.log(scrolling);
-      _where = {where: {combinator: "and",rules: [{"field": "`created_at`","operator": "lt","value": lastListDate}]}};
-      _where.where.rules.push(where);
-    }
-    if(_where.where.rules.length)
-      params = {...params, ..._where};
     try {
       const response = await axios({
         method: 'get',
@@ -129,18 +113,13 @@ const Users = () => {
           'Content-Type': 'application/json',
         },
         params: params
-      }),
-      _data = [...data.users,...response.data.data];
+      });
       statusCode = response.status;
-      console.log(scrolling ? {users: _data} : {users: [...response.data.data]});
-      setData(scrolling ? {users: _data} : {users: [...response.data.data]});
-      
-      setLastListDate(response.data.data.length ? response.data.data[response.data.data.length-1].created_at : 'none');
-      //console.log(response.data.data[response.data.data.length-1].created_at);
+      setData({users: response.data.data});
       if(response.data.message == "no data")
         addToast(response.data.message);
     } catch (error) {
-      if(error.response?.data.message == "Invalid credentials."){
+      if(error.response.data.message == "Invalid credentials."){
         addToast('user is not logged in or session has already expired','danger','unauthenticated');
         document.cookie = "access_token=" + '';
       }
@@ -149,7 +128,7 @@ const Users = () => {
     }
   },
 
-  Cancel = e => {
+  Cancel = () => {
     setAction('');
     setUser({
       first_name: "",
@@ -167,7 +146,7 @@ const Users = () => {
     setTextBoxError([]);
   },
 
-  Add = e => {
+  Add = () => {
     setAction('add');
     setUser({
       first_name: "",
@@ -180,7 +159,6 @@ const Users = () => {
   };
 
   useEffect(() => {Fetch()}, [page]);
-
   return (
     <>
       <div className={`card mb-2 ${action == '' && 'd-none'}`} border="secondary">
@@ -263,8 +241,43 @@ const Users = () => {
           }
         </div>
         <div className="card-body">
-          <FilterBuilder filterFields={filterFields} where={where} setWhere={setWhere}/>
-          <button type="button"  className="btn btn-sm btn-link" onClick={e => Fetch(false)}>reload</button>
+          <button type="button" className="btn btn-sm btn-link" onClick={e => setFilters([...filters,{criteria:'id',operator:'like',value:'',conjunction:'and'}])}>add filter</button>
+          <button type="button"  className={`btn btn-sm btn-link ${filters.length == 0 && 'd-none'}`} onClick={e =>{setFilters([])} }>clear filters</button>
+          {filters.map((filter,index) => (
+            <div className="input-group mb-1" key={index}>
+              <select value={filter.criteria}
+                className="form-control form-control-sm"
+                onChange={e =>{handleFilterChange(e,index,'criteria')}}>
+                  <option value="id">ID</option>
+                  <option value="last_name">Last Name</option>
+                  <option value="first_name">First Name</option>
+                  <option value="email">Email</option>
+                  <option value="type">Type</option>
+              </select>
+              <select value={filter.operator}
+                className="form-control form-control-sm"
+                onChange={e =>{handleFilterChange(e,index,'operator')}}>
+                  <option value="like">Like</option>
+                  <option value="eq">Equals</option>
+                  <option value="ne">Not Equals</option>
+                  <option value="gt">Greater Than</option>
+                  <option value="lt">Less Than</option>
+              </select>
+              <input type="text" className="form-control form-control-sm" onChange={e =>{handleFilterChange(e,index,'value')}} placeholder="value"/>
+              <div className="btn-group btn-group-toggle" data-toggle="buttons">
+                <label className={`btn btn-sm btn-secondary ${filter.conjunction == 'and' && 'active'}`}>
+                  <input type="radio" name="options" id="option1" value="and" onClick={e =>{handleFilterChange(e,index,'conjunction')}}/> And
+                </label>
+                <label className={`btn btn-sm btn-secondary ${filter.conjunction == 'or' && 'active'}`}>
+                  <input type="radio" name="options" id="option2" value="or" onClick={e =>{handleFilterChange(e,index,'conjunction')}}/> Or
+                </label>
+              </div>
+              <div className="input-group-append">
+                <button className="btn btn-sm btn-outline-danger" type="button" onClick={e =>{removeFilter(index)}}>Remove</button>
+              </div>
+            </div>
+          ))}
+          <button type="button"  className="btn btn-sm btn-link" onClick={Fetch}>reload</button>
           <div className="table">
             <div className="row header blue">
               <div className="cell col-sm">
@@ -283,9 +296,8 @@ const Users = () => {
                 Type
               </div>
             </div>
-            { data.users.length ?
-              data.users.map((user,key) => (
-              <div key={key} className="row">
+            {data.users.map((user) => (
+              <div key={user.id} className="row">
                 <div className="cell col-sm" data-title="ID">
                   <button type="button" className="btn btn-sm btn-link" onClick={Select(user)}>{user.id}</button>
                 </div>
@@ -302,15 +314,34 @@ const Users = () => {
                   {user.type}
                 </div>
               </div>
-            )):<div className="row"><div className="cell col-sm"><center>nodata</center></div></div>}
+            ))}
           </div>
-          <div className="text-center">
-            <button type="button" className={`btn btn-link ${lastListDate == 'none' && 'd-none'}`} onClick={e => Fetch(true)}>More</button>
-          </div>
+          <nav aria-label="Page navigation example">
+            <ul className="pagination justify-content-end">
+              <li className={`page-item ${page == 1 && 'disabled'}`}>
+                <button type="button" className="page-link" onClick={() => (setPage(page - 1))}>Previous</button>
+              </li>
+              {page > 2 &&
+                <li className="page-item"><button type="button" className="page-link" onClick={() => (setPage(page - 2))}>{page-2}</button></li>
+              }
+              {page > 1 &&
+                <li className="page-item"><button type="button" className="page-link" onClick={() => (setPage(page - 1))}>{page-1}</button></li>
+              }
+              <li className="page-item disabled"><button type="button" className="page-link">{page}</button></li>
+              {data.users.length != 0 &&
+                <li className="page-item"><button type="button" className="page-link" onClick={() => (setPage(page + 1))}>{page + 1}</button></li>
+              }
+              {data.users.length != 0 &&
+                <li className="page-item"><button type="button" className="page-link" onClick={() => (setPage(page + 2))}>{page + 2}</button></li>
+              }
+              <li className={`page-item ${data.users.length == 0 && 'disabled'}`}>
+                <button type="button" className="page-link" onClick={() => (setPage(page + 1))}>Next</button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </>
   );
 };
-
 export default Users;

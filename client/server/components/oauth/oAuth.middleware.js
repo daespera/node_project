@@ -95,6 +95,7 @@ module.exports.validateUser = async (req, res, next) => {
     req.body = {
         client_id: user.clientid,
         id: user.id,
+        type: user.type,
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name
@@ -122,6 +123,8 @@ module.exports.validJWTNeeded = (req, res, next) => {
               });
             } else {
                 req.jwt = jwt.verify(authorization[1], JWT_SECRET);
+                console.log("jwt");
+                console.log(req.jwt);
                 return next();
             }
 

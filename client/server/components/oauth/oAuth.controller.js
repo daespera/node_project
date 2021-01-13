@@ -26,6 +26,7 @@ module.exports.issueToken = async (req, res) => {
     };
     if (req.body.id != undefined){
       payLoad.sub = req.body.id;
+      payLoad.user_type = req.body.type;
       refreshPayLoad.id = req.body.id;
     }
     let token = jwt.sign(payLoad, JWT_SECRET);
@@ -40,8 +41,5 @@ module.exports.issueToken = async (req, res) => {
 
     if(refreshToken != null)
     response.refresh_token = refreshToken;
-
-    
-
     return res.status(200).send(response);
 };

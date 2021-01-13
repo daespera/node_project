@@ -38,12 +38,9 @@ const Login = props => {
       statusCode = response.status;
       data = response.data;
       document.cookie = "access_token=" + data.accessToken;
-      console.log(data);
-      console.info(statusCode);
       props.toogleNavigation();
       props.history.push('/');
     } catch (error) {
-      console.log(error);
       statusCode = error.response.status;
       data = error.response.data;
     }
