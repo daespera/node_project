@@ -1,7 +1,9 @@
+require("./../infrastructure/db.connection");
+
 module.exports = (filename) => {
   var module = {};
 
-  const model =  sequelize['import'](filename),
+  const model = sequelize['import'](filename),
     { Op } = require("sequelize");
 
   module.model = () => {
@@ -9,7 +11,11 @@ module.exports = (filename) => {
   }
 
   module.create = async (params) => {
-    return await model.create(params);
+    try{
+      return await model.create(params);
+    }catch(e){
+      console.log(e);
+    }
   }
 
   module.retrieve = async (id = null,params) => {
@@ -20,7 +26,8 @@ module.exports = (filename) => {
       orWhere = {[Op.or] : []},
       andWhere = {[Op.and] : []},
       condition = {where : {}},
-      order = [['created_at', 'DESC']];
+      order = [['created_at', 'DESC']],
+      include = params.include ? params.include : "";
 
       if (id != null)
         condition.where.push({ id : {[Op.eq]: id} });      
@@ -36,13 +43,9 @@ module.exports = (filename) => {
           }else{
             rule = [{ [filter.field] : {[Op[filter.operator]]: filter.value} }];
           }
-          console.log("rules");
-          console.log(rule);
           eval("_"+pointer+"[Op[ruleGroup.combinator]] = [..._"+pointer+"[Op[ruleGroup.combinator]],...rule]");
 
         });
-        console.log("_test");
-        console.log(_where);
         return _where;
       };
       let _where = {};
@@ -68,8 +71,10 @@ module.exports = (filename) => {
       condition.offset = offset - limit;
       condition.limit = limit;
       condition.order = order;
+      if(include != "")
+        condition.include = include.split(",");
       return await model.findAll(
-          condition 
+          condition
       );
     }catch(e){
       console.log(e);
@@ -77,8 +82,12 @@ module.exports = (filename) => {
   }
 
   module.update = async (id = null,params) => {   
-    var obj = await model.findByPk(id);
-    return await obj.update(params);
+    //var obj = await model.findByPk(id);
+    return await model.update(params, {
+      where: {
+        id: id
+      }
+    });
   }
 
   module.delete = async (id = null,params) => {   

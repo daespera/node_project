@@ -6,10 +6,20 @@ const ToastContext = React.createContext(null);
 let id = 1;
 
 const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
+  const [toasts, setToasts] = useState([]),
+  [confirm, setConfirm] = useState({callback: ""});
+
+  const triggerCallback = useCallback(
+    (id, response) => {
+      confirm.callback(response);
+      removeToast(id)
+    }
+  );
 
   const addToast = useCallback(
-    (content, type, title) => {
+    (content, type, title, callback) => {
+      if(callback != undefined)
+        setConfirm({...confirm, callback: callback});
       let data = null;
       switch(type) {
         case 'success':
@@ -45,13 +55,23 @@ const ToastProvider = ({ children }) => {
           }
           break;
 
-          default:
-            data = {
-              id: id++,
-              title: title,
-              content: content,
-              backgroundColor: '#5cb85c'
-            }
+        case 'confirm':
+          data = {
+            id: id++,
+            title: title,
+            content: content,
+            backgroundColor: '#f0ad4e',
+            confirm: 1
+          }
+          break;
+
+        default:
+          data = {
+            id: id++,
+            title: title,
+            content: content,
+            backgroundColor: '#5cb85c'
+          }
       }
       setToasts(toasts => [
         ...toasts,
@@ -59,9 +79,9 @@ const ToastProvider = ({ children }) => {
       ]);
     },
     [setToasts]
-  );
+  ),
 
-  const removeToast = useCallback(
+  removeToast = useCallback(
     id => {
       setToasts(toasts => toasts.filter(t => t.id !== id));
     },
@@ -72,7 +92,8 @@ const ToastProvider = ({ children }) => {
     <ToastContext.Provider
       value={{
         addToast,
-        removeToast
+        removeToast,
+        triggerCallback
       }}
     >
       {children}

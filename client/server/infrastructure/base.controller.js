@@ -20,7 +20,7 @@ module.exports = (repo) => {
         }
     };
 
-    module.list = async (req, res) => {
+    module.list = async (req, res, next) => {
         try {
             const model = await repo.retrieve(req.params._id,req.query);
             if (model != undefined) {

@@ -5,13 +5,11 @@ const express = require('express'),
   es6Renderer = require('express-es6-template-engine'),
   serialize = require('serialize-javascript'),
   cookieParser = require('cookie-parser'),
-  csrf = require('csurf'),
+  csrf = require('csurf'),  
   packageJson = require('../package.json'),
   csrfProtection = csrf({ cookie: true }),
-  { ValidationError } = require('express-validation');
-
-require("./infrastructure/db.connection");
-
+  { ValidationError } = require('express-validation')
+  afterResponseHandler = require('./infrastructure/afterResponseHandler');
 
 const { PORT, API_BASE_URL } = require('./infrastructure/config');
 
@@ -24,6 +22,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(afterResponseHandler.handler);
 
 // Api Routes
 OAuthRouter.routesConfig(app);
@@ -60,6 +60,7 @@ app.get('*', csrfProtection, (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log("err.code");
   console.log(err.code);
   if (err.code === 'EBADCSRFTOKEN') res.status(403).json({
       name: "CSRFERROR",
@@ -75,4 +76,4 @@ app.use((err, req, res, next) => {
   if (err instanceof ValidationError) return res.status(err.statusCode).json(err)
  
   return next(err)
-})
+});

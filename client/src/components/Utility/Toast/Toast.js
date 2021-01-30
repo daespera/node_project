@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import { useToast } from "./ToastProvider";
 
-const Toast = ({ children, id, title, backgroundColor }) => {
-  const { removeToast } = useToast();
+const Toast = ({ children, id, title, backgroundColor, confirm }) => {
+  const { removeToast, triggerCallback } = useToast();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const timer = confirm == undefined && setTimeout(() => {
       removeToast(id);
     }, 4000);
     return () => {
-      clearTimeout(timer);
+      confirm == undefined && clearTimeout(timer);
     };
   }, [id, removeToast]);
 
@@ -27,6 +27,10 @@ const Toast = ({ children, id, title, backgroundColor }) => {
       </div>
       <div className="toast-body">
         {children}
+        <div className={`${confirm == undefined && 'd-none'}`}>
+          <button type="button" className="btn btn-sm btn-success mr-1" onClick={() => triggerCallback(id,true)}>Yes</button>
+          <button type="button" className="btn btn-sm btn-danger mr-1" onClick={() => triggerCallback(id,false)}>No</button>
+        </div>          
       </div>
     </div>
   );

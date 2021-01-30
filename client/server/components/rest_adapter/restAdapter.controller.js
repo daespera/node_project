@@ -2,10 +2,12 @@ const  axios = require("axios"),
   { API_BASE_URL } = require('../../infrastructure/config');
 
 module.exports.proxy = async (req, res) => {
-  const url = req.method == 'GET' ? req.query._endpoint : req.body._endpoint;
+  console.log('req');
+  console.log(req.query);
+  const url = req.method == 'GET' || req.method == 'DELETE' ? req.query._endpoint : req.body._endpoint;
   delete req.body._endpoint;
   delete req.query._endpoint;
-  let params = req.method == 'GET' ? req.query : req.body;
+  let params = req.method == 'GET' || req.method == 'DELETE' ? req.query : req.body;
   var status;
   var data;
   if (url == "oauth/token"){
@@ -24,16 +26,7 @@ module.exports.proxy = async (req, res) => {
     ? {'Authorization': 'Bearer ' + (req.headers.cookie.match('(^|; )access_token=([^;]*)')||0)[2]}
     : {};
   try {
-    console.log({
-      method: req.method,
-      url: API_BASE_URL + url,
-      headers: {
-        ..._headers,
-        'Content-Type': 'application/json'
-      },
-      data: params
-    });
-    const _params = req.method == 'GET' ? {params: params} : {data: params};
+    const _params = req.method == 'GET' || req.method == 'DELETE' ? {params: params} : {data: params};
     const payload = {
       method: req.method,
       url: API_BASE_URL + url,
@@ -42,6 +35,7 @@ module.exports.proxy = async (req, res) => {
         'Content-Type': 'application/json'
       }
     };
+    console.log(payload);
     const response = await axios({...payload,..._params});
     status = response.status;
     data = response.data;

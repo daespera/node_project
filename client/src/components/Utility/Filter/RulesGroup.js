@@ -8,36 +8,29 @@ const RulesGroup = ({indexString, index, filterFields}) => {
     let _where = where;
     eval('_'+indexString)["combinator"] = value;
     setWhere({..._where});
-    console.log(where)
   },
   addRule = (rule) => {
     let _where = where;
     eval('_'+indexString+".rules").push(rule);
     setWhere({..._where});
-    console.log(where);
   },
   handleRuleChange = (e,index,prop) => {
     let _where = where;
     eval('_'+indexString+".rules")[index][prop] = e.target.value;
     setWhere({..._where});
-    console.log(where);
   },
   removeRule = (index) => {
     let _where = where;
     eval('_'+indexString+".rules").splice(index, 1);
     setWhere({..._where});
-    console.log(where);
   },
   removeRuleGroup = (index) => {
-    console.log(indexString);
     let _where = where,
     _indexString = indexString.split('.');
     _indexString.pop();
-    _indexString = _indexString.join('.')
-    console.log(_indexString);
+    _indexString = _indexString.join('.');
     eval('_'+_indexString+".rules").splice(index, 1);
     setWhere({..._where});
-    console.log(where);
   };
 
   return (

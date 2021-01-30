@@ -1,5 +1,6 @@
 const UsersController = require('./users.controller'),
     OAuthMiddleware = require('./../oauth/oAuth.middleware'),
+    UsershMiddleware = require('./users.middleware'),
     { validate, Joi } = require('express-validation');
 
 exports.routesConfig = function (app) {
@@ -41,5 +42,10 @@ exports.routesConfig = function (app) {
     app.delete('/api/v1/user/:_id', [
         OAuthMiddleware.validJWTNeeded,
         UsersController.delete
+    ]);
+
+    app.put('/api/v1/user/:_id/user_attribute', [
+        OAuthMiddleware.validJWTNeeded,
+        UsersController.createAttribute
     ]);
 };

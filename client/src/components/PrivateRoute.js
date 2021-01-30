@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Redirect } from 'react-router-dom';
-import { useToast } from "./Toast/ToastProvider";
+import { useToast } from "./Utility/Toast/ToastProvider";
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
 	const { addToast } = useToast();

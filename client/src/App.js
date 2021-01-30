@@ -8,7 +8,7 @@ import Sidebar from "./components/Sidebar";
 import Login from "./components/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import Users from "./components/Users";
-import ToastProvider from "./components/Toast/ToastProvider";
+import ToastProvider from "./components/Utility/Toast/ToastProvider";
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -55,7 +55,7 @@ export default class App extends React.Component {
       <Router>
         <div className="wrapper d-flex align-items-stretch">
           {this.state.showNavigation && <Sidebar/>}
-          <div id="content" className="p-4 p-md-4.5 pt-5">
+          <div id="content" className="py-4 px-2 py-md-4.5 pt-5">
             <ToastProvider>
               <Switch>
                 <Route

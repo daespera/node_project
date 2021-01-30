@@ -30,6 +30,12 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: false
         },
+        status: {
+          allowNull: false,
+          type: Sequelize.ENUM,
+          defaultValue: 'ACTIVE',
+          values: ['ACTIVE', 'BLOCKED', 'DISABLED']
+        },
         deleted_at: {
           allowNull: true,
           type: Sequelize.DATE

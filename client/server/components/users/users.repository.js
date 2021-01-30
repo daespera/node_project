@@ -8,7 +8,8 @@ class UserRepo extends Repo {
 }
 */
 //module.exports = UserRepo;
+const baseRepo = require('../../infrastructure/model.repository')('./../components/users/users.model.js');
 
 module.exports = {
-   ...require('../../infrastructure/model.repository')('./../components/users/users.model.js'),
+	...baseRepo
 };

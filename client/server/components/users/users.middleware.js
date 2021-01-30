@@ -1,0 +1,1 @@
+const usersRepo = require('./../users/userAttributes.repository');

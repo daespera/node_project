@@ -10,7 +10,7 @@ const ToastContainer = ({ toasts }) => {
         <div style={{overflowX: 'hidden',position: 'absolute', top: 0, right: 0}}>
           {
             toasts.map((toast, i) =>(
-              <Toast key={i} id={toast.id} title={toast.title} backgroundColor={toast.backgroundColor}>
+              <Toast key={i} id={toast.id} title={toast.title} backgroundColor={toast.backgroundColor} confirm={toast.confirm}>
                 {typeof toast.content == 'object' ? toast.content.map((item,i) => <li key={i}>{item}</li>) : toast.content}
               </Toast>
             ))

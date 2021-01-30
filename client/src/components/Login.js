@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 
-import { useToast } from "./Toast/ToastProvider";
+import { useToast } from "./Utility/Toast/ToastProvider";
 
 const Login = props => {
   const { addToast } = useToast();
@@ -19,6 +19,7 @@ const Login = props => {
   }
 
   useEffect(() => {
+    document.cookie = "access_token=" + '';
     props.toogleNavigation();
   }, []);
 

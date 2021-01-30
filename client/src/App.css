@@ -18,8 +18,12 @@ code {
   align-items: stretch;
 }
 
-.card-header {
+.card-header-custom {
   padding: .15rem 1rem !important;
+}
+
+.card-header-tabs-custom {
+  margin-bottom: -.15rem !important;
 }
 
 /* ---------------------------------------------------
@@ -139,10 +143,10 @@ code {
       background: #2f89fc;
       border-color: transparent;
       position: relative;
-      padding: 0px;
+      padding: .100rem .45rem .375rem .45rem;
       color: #000;
-      width: 30px;
-      height: 30px; }
+      /*width: 30px;
+      height: 30px;*/ }
       #sidebar .custom-menu .btn.btn-primary:after, #sidebar .custom-menu .btn.btn-primary:before {
         position: absolute;
         top: 2px;

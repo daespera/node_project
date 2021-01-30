@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from 'axios';
-import { useToast } from "./Toast/ToastProvider";
-
+import { useToast, setCallBack } from "./Utility/Toast/ToastProvider";
 import FilterBuilder from "./Utility/Filter/FilterBuilder";
-
-
 
 const Users = () => {
   const { addToast } = useToast(),
@@ -18,7 +15,8 @@ const Users = () => {
       last_name: "",
       email: "",
       type: "",
-      password: ""
+      password: "",
+      key: ""
     }),
     [filters,setFilters] = useState([]),
     [textBoxError, setTextBoxError] = useState([]),
@@ -47,6 +45,46 @@ const Users = () => {
       ...user,
       [e.target.name]: value
     });
+  },
+
+  handleAttributeToggle = async name => {
+    console.log(name);
+    let _user_attributes = user.user_attributes;
+    console.log(user.user_attributes[name]);
+    _user_attributes[name] = user.user_attributes[name] == 'false' || user.user_attributes[name] == undefined ? 'true' : 'false';
+    console.log(_user_attributes);
+    setUser({
+      ...user,
+      user_attributes: _user_attributes
+    });
+    try {
+      const params = {
+        _endpoint: "user/"+user.id+"/user_attribute",
+        attribute: name,
+        value: _user_attributes[name]
+      },
+      mapping = {
+        ['ACL_USER_ADD']: "ACL user add",
+        ['ACL_USER_EDIT']: "ACL user edit",
+        ['ACL_USER_DELETE']: "ACL user delete",
+        ['ACL_USER_RETRIEVE']: "ACL user retrieve"
+      },
+      response = await axios({
+        method: 'put',
+        url: '/rest_proxy',
+        headers: { 
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrf_token
+        },
+        data: params
+      });
+      addToast(mapping[name]+" "+response.data.message);
+    } catch (error) {
+      if(error.response?.data.message == "Invalid credentials."){
+        addToast('user is not logged in or session has already expired','danger','unauthenticated');
+        document.cookie = "access_token=" + '';
+      }
+    }
   },
 
   Save = async e => {
@@ -102,11 +140,10 @@ const Users = () => {
   },
 
   Fetch = async (scrolling = false) => {
-    console.log('filter');
-    console.log(filters.length);
     var statusCode;
     let params = {
       _endpoint: "user",
+      include: "user_attributes",
       size: size,
       page: page
     },
@@ -156,15 +193,50 @@ const Users = () => {
       last_name: "",
       email: "",
       type: "",
-      password: ""
+      password: "",
+      key: ""
     });
     setTextBoxError([]);
   },
 
-  Select = (item) => (event) => {
+  Select = (item,key) => (event) => {
     setAction('edit');
+    item.key = key;
+    console.log(item);
     setUser(item);
     setTextBoxError([]);
+  },
+
+  DeleteRequest = (userID, userKey) => {
+    addToast('delete user?','confirm','Delete',response => response && DeleteConfirm(response,userID,userKey));
+  },
+
+  DeleteConfirm = async (confirm, userID, userKey) => {
+    console.log(confirm);
+    console.log(userID);
+    let params = {
+      _endpoint: "user/"+userID
+    };
+    try {
+      const response = await axios({
+        method: 'delete',
+        url: '/rest_proxy',
+        headers: { 
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrf_token
+        },
+        params: params
+      }),
+      _data = data;
+      _data.users.splice(userKey, 1);
+      setData({..._data});
+      Cancel()
+    } catch (error) {
+      if(error.response?.data.message == "Invalid credentials."){
+        addToast('user is not logged in or session has already expired','danger','unauthenticated');
+        document.cookie = "access_token=" + '';
+      }
+    }
   },
 
   Add = e => {
@@ -184,8 +256,21 @@ const Users = () => {
   return (
     <>
       <div className={`card mb-2 ${action == '' && 'd-none'}`} border="secondary">
-        <div className="card-header"><b>{action == 'add' ? 'Create' : 'Update'}</b></div>
-        <div className="card-body">
+        <div className="card-header card-header-custom">
+          <ul className="nav nav-tabs card-header-tabs card-header-tabs-custom">
+            <li className="nav-item">
+              <a className="nav-link disabled" href="#"><b>{action == 'add' ? 'Create' : 'Update'}</b></a>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={`btn btn-sm btn-link nav-link ${action == 'edit' && 'active'} ${action == 'add' && 'd-none'}`} onClick={e => setAction('edit')}>Info</button>
+            </li>
+            <li className="nav-item">
+              <button type="button" className={`btn btn-sm btn-link nav-link ${action == 'edit_attributes' && 'active'} ${action == 'add' && 'd-none'}`} onClick={e => setAction('edit_attributes')}>Attributes</button>
+            </li>
+          </ul>
+
+        </div>
+        <div className={`card-body ${(action == 'edit_attributes' ) && 'd-none'}`}>
           <div className="form-group row">
             <label className="col-sm-2 col-form-label col-form-label-sm">First name</label>
             <div className="col-sm-10">
@@ -239,24 +324,50 @@ const Users = () => {
               </select>
             </div>
           </div>
-          <div className="form-group row">
+          <div className={`form-group row ${action != 'add' && 'd-none'}`}>
             <label className="col-sm-2 col-form-label col-form-label-sm">Password</label>
             <div className="col-sm-10">
               <input
                 type="password"
-                value={user.password}
+                value={action == 'add' && user.password}
                 onChange={handleChange}
                 name="password"
                 className={`form-control form-control-sm ${textBoxError.includes('password') && 'is-invalid'}`}
                 placeholder="Password" />
             </div>
           </div>
-            <button type="button" className="btn btn-sm btn-success  mr-1" onClick={Save}>{action == 'add' ? 'Create' : 'Update'}</button>
-          <button type="button" className="btn btn-sm btn-danger" onClick={Cancel}>Cancel</button>
+          <button type="button" className="btn btn-sm btn-success mr-1" onClick={Save}>{action == 'add' ? 'Create' : 'Update'}</button>
+          <button type="button" className={`btn btn-sm btn-danger mr-1 ${action == 'add' && 'd-none'}`} onClick={e => DeleteRequest(user.id,user.key)}>Delete</button>
+          <button type="button" className="btn btn-sm btn-warning" onClick={Cancel}>Cancel</button>
+        </div>
+        <div className={`card-body ${action != 'edit_attributes' && 'd-none'}`}>
+          <div className="card w-50">
+            <div className="card-body">
+              <h5 className="card-title">ACL - user</h5>
+              <div className="custom-control custom-switch">
+                <input type="checkbox" className="custom-control-input" defaultChecked={user.user_attributes && user.user_attributes.ACL_USER_ADD == 'true'}/>
+                <label className="custom-control-label" onClick={() => handleAttributeToggle("ACL_USER_ADD")} >Add</label>
+              </div>
+              <div className="custom-control custom-switch">
+                <input type="checkbox" className="custom-control-input" defaultChecked={user.user_attributes && user.user_attributes.ACL_USER_RETRIEVE == 'true'}/>
+                <label className="custom-control-label" onClick={() => handleAttributeToggle("ACL_USER_RETRIEVE")} >Retrieve</label>
+              </div>
+              <div className="custom-control custom-switch">
+                <input type="checkbox" className="custom-control-input" defaultChecked={user.user_attributes && user.user_attributes.ACL_USER_EDIT == 'true'}/>
+                <label className="custom-control-label" onClick={() => handleAttributeToggle("ACL_USER_EDIT")} >Edit</label>
+              </div>
+              <div className="custom-control custom-switch">
+                <input type="checkbox" className="custom-control-input" defaultChecked={user.user_attributes && user.user_attributes.ACL_USER_DELETE == 'true'}/>
+                <label className="custom-control-label" onClick={() => handleAttributeToggle("ACL_USER_DELETE")} >Delete</label>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <button type="button" className="btn btn-sm btn-warning" onClick={Cancel}>Cancel</button>
         </div>
       </div>
       <div className="card" border="secondary">
-        <div className="card-header d-flex justify-content-between align-items-center">
+        <div className="card-header card-header-custom d-flex justify-content-between align-items-center">
           <b>Users</b>
           {action != 'add' &&
             <button type="button" className="btn btn-sm btn-primary" onClick={Add}>Add</button>
@@ -287,7 +398,7 @@ const Users = () => {
               data.users.map((user,key) => (
               <div key={key} className="row">
                 <div className="cell col-sm" data-title="ID">
-                  <button type="button" className="btn btn-sm btn-link" onClick={Select(user)}>{user.id}</button>
+                  <button type="button" className="btn btn-sm btn-link" onClick={Select(user,key)}>{user.id}</button>
                 </div>
                 <div className="cell col-sm" data-title="Last Name">
                   {user.last_name}
