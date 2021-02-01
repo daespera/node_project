@@ -1,5 +1,5 @@
-module.exports = function (sequelize, DataTypes) {
-  var UserAttribute = sequelize.define('user_attributes', {
+module.exports = (sequelize, DataTypes) => {
+  let UserAttribute = sequelize.define('user_attributes', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -41,6 +41,5 @@ module.exports = function (sequelize, DataTypes) {
   UserAttribute.associate = function(models) {
     UserAttribute.belongsTo(models.User, {foreignKey: 'userId', as: 'user'})
   };
-
   return UserAttribute;
 };

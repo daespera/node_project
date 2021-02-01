@@ -29,9 +29,9 @@
   },
   "homepage": "/",
   "scripts": {
-    "start": "npm-run-all -p build:watch server:watch",
-    "server": "node server/app.js",
-    "server:watch": "nodemon --ignore './src/' server/app.js",
+    "start": "npm-run-all -p build:watch api:watch",
+    "api": "node api/app.js",
+    "api:watch": "nodemon --ignore './src/' api/app.js",
     "build": "react-scripts build",
     "build:watch": "cra-build-watch",
     "test": "react-scripts test",

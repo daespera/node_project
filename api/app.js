@@ -61,7 +61,7 @@ app.get('*', csrfProtection, (req, res) => {
 
 app.use((err, req, res, next) => {
   console.log("err.code");
-  console.log(err.code);
+  console.log(err);
   if (err.code === 'EBADCSRFTOKEN') res.status(403).json({
       name: "CSRFERROR",
       message: "CSRF Token Mismatch",

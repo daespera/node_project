@@ -9,12 +9,12 @@ module.exports = {
       first_name: 'John',
       last_name: 'Doe',
       email: 'example@example.com',
+      type: 'ADMIN',
       password: bcrypt.hashSync('test', 10),
       created_at: new Date(),
       updated_at: new Date()
     }]);
   },
-
   down: (queryInterface, Sequelize) => {
     /*
       Add reverting commands here.

@@ -1,65 +1,94 @@
-module.exports = (filename) => {
-    var module = {};
+require("./../infrastructure/db.connection");
 
-    const model =  sequelize['import'](filename),
-        { Op } = require("sequelize");
+module.exports = filename => {
+  const model = sequelize['import'](filename),
+    { Op } = require("sequelize");
 
-    module.model = () => {
-        return model;
-    }
-
-    module.create = async (params) => {
+  return {
+    model: () => {
+      return model;
+    },
+    create: async params => {
+      try{
         return await model.create(params);
-    }
-
-    module.retrieve = async (id = null,params) => {
-        console.log("test");
-        console.log(params.where);
-
-
-
-        var condition = params.filter != undefined ? {where : [{[Op.or]:[]}]} : {where : []};
-        var filter = [];
-
-        const limit = params.size != undefined ? parseInt(params.size) : 5;
-
-        const offset = (params.page != undefined ? parseInt(params.page) : 1) * limit;
-
+      }catch(e){
+        console.log(e);
+      }
+    },
+    retrieve: async (id = null,params) => {
+      try{
+        let limit = params.size != undefined ? parseInt(params.size) : 5,
+        offset = (params.page != undefined ? parseInt(params.page) : 1) * limit,
+        filters = params.filter != undefined && JSON.parse( params.filter).filters,
+        orWhere = {[Op.or] : []},
+        andWhere = {[Op.and] : []},
+        condition = {where : {}},
+        order = [['created_at', 'DESC']],
+        include = params.include ? params.include : "";
         if (id != null)
-            condition.where.push({ id : {[Op.eq]: id} });
+          condition.where.push({ id : {[Op.eq]: id} });      
+        const recurse = (ruleGroup,pointer="where") => {
+          var _where = {};
+          let _group = {[Op[ruleGroup.combinator]]: []};
+          eval("_"+pointer+" = {..._"+pointer+",..._group};")
+          ruleGroup.rules.forEach((filter,index) => {
+            let rule;
+            if (filter.hasOwnProperty('rules')){
+              let _rule = recurse(filter);
+              rule = [_rule];
+            }else{
+              rule = [{ [filter.field] : {[Op[filter.operator]]: filter.value} }];
+            }
+            eval("_"+pointer+"[Op[ruleGroup.combinator]] = [..._"+pointer+"[Op[ruleGroup.combinator]],...rule]");
 
-        if (params.filter != undefined){
-            filter = params.filter.split(",");
-        }
-
-        for(var i = 0; i < filter.length; i++){
-            var constraints = filter[i].split(":");
-            var operation = constraints[2] != 'umdefined' ? constraints[2] : 'eq';
-            if (constraints[3]=='OR')
-                condition.where[0][Op.or].push({ [constraints[0]] : {[Op[operation]]: constraints[1]} });
+          });
+          return _where;
+        };
+        let _where = {};
+        if(params.where)
+          _where = recurse(JSON.parse(params.where));
+        condition.where = {...condition.where,..._where};
+        /* if (filters){
+          filters.forEach(filter => {
+            let operation = filter.operator != undefined ? filter.operator : 'eq',
+            conjunction = filter.conjunction != undefined ? filter.conjunction : 'and',
+            concat = [{ [filter.criteria] : {[Op[filter.operator]]: filter.value} }];
+            if (conjunction=='or')
+              orWhere[Op.or] = [...orWhere[Op.or],...concat];
             else
-                condition.where.push({ [constraints[0]] : {[Op[operation]]: constraints[1]} });
-        }
-
+              andWhere[Op.and] = [...andWhere[Op.and],...concat];
+            if (andWhere[Op.and].length)
+              condition.where = {...condition.where,...andWhere};
+            if (orWhere[Op.or].length)
+              condition.where = {...condition.where,...orWhere};
+          });
+        } */
         condition.offset = offset - limit;
         condition.limit = limit;
+        condition.order = order;
+        if(include != "")
+          condition.include = include.split(",");
         return await model.findAll(
-            condition 
+            condition
         );
+      }catch(e){
+        console.log(e);
+      }
+    },
+    update: async (id = null,params) => {   
+      //var obj = await model.findByPk(id);
+      return await model.update(params, {
+        where: {
+          id: id
+        }
+      });
+    },
+    delete: async (id = null,params) => {   
+      return await model.destroy({
+        where: {
+          id: id
+        }
+      });
     }
-
-    module.update = async (id = null,params) => {   
-        var obj = await model.findByPk(id);
-        return await obj.update(params);
-    }
-
-    module.delete = async (id = null,params) => {   
-        return await model.destroy({
-            where: {
-                id: id
-            }
-        });
-    }
-
-    return module;
+  };
 };

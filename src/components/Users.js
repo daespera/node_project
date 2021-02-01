@@ -53,10 +53,6 @@ const Users = () => {
     console.log(user.user_attributes[name]);
     _user_attributes[name] = user.user_attributes[name] == 'false' || user.user_attributes[name] == undefined ? 'true' : 'false';
     console.log(_user_attributes);
-    setUser({
-      ...user,
-      user_attributes: _user_attributes
-    });
     try {
       const params = {
         _endpoint: "user/"+user.id+"/user_attribute",
@@ -83,6 +79,10 @@ const Users = () => {
       if(error.response?.data.message == "Invalid credentials."){
         addToast('user is not logged in or session has already expired','danger','unauthenticated');
         document.cookie = "access_token=" + '';
+         setUser({
+          ...user,
+          user_attributes: _user_attributes
+        });
       }
     }
   },
@@ -112,7 +112,7 @@ const Users = () => {
         });
       else
         setData({
-          users:[...data.users,_response.data]
+          users:[_response.data,...data.users]
         });
       Cancel();
       setPage(1);
@@ -152,7 +152,6 @@ const Users = () => {
     let _where = {where: where};
 
     if(scrolling){
-      console.log(scrolling);
       _where = {where: {combinator: "and",rules: [{"field": "`created_at`","operator": "lt","value": lastListDate}]}};
       _where.where.rules.push(where);
     }
@@ -169,20 +168,18 @@ const Users = () => {
       }),
       _data = [...data.users,...response.data.data];
       statusCode = response.status;
-      console.log(scrolling ? {users: _data} : {users: [...response.data.data]});
       setData(scrolling ? {users: _data} : {users: [...response.data.data]});
       
       setLastListDate(response.data.data.length ? response.data.data[response.data.data.length-1].created_at : 'none');
-      //console.log(response.data.data[response.data.data.length-1].created_at);
       if(response.data.message == "no data")
         addToast(response.data.message);
     } catch (error) {
       if(error.response?.data.message == "Invalid credentials."){
         addToast('user is not logged in or session has already expired','danger','unauthenticated');
         document.cookie = "access_token=" + '';
+      }else{
+        addToast(error.response?.data.message,'danger',error.response?.data.message);
       }
-      //statusCode = error.response.status;
-      //data = error.response.data;
     }
   },
 
@@ -212,8 +209,6 @@ const Users = () => {
   },
 
   DeleteConfirm = async (confirm, userID, userKey) => {
-    console.log(confirm);
-    console.log(userID);
     let params = {
       _endpoint: "user/"+userID
     };
@@ -235,6 +230,8 @@ const Users = () => {
       if(error.response?.data.message == "Invalid credentials."){
         addToast('user is not logged in or session has already expired','danger','unauthenticated');
         document.cookie = "access_token=" + '';
+      }else{
+        addToast(error.response?.data.message,'danger',error.response?.data.message);
       }
     }
   },
