@@ -1,6 +1,7 @@
 const express = require('express'),
   http = require('http'),
   path = require('path'),
+  fs = require("fs"),
   reload = require('reload'),
   es6Renderer = require('express-es6-template-engine'),
   serialize = require('serialize-javascript'),
@@ -8,14 +9,17 @@ const express = require('express'),
   csrf = require('csurf'),  
   packageJson = require('../package.json'),
   csrfProtection = csrf({ cookie: true }),
-  { ValidationError } = require('express-validation')
-  afterResponseHandler = require('./infrastructure/afterResponseHandler');
+  { ValidationError } = require('express-validation'),
+  afterResponseHandler = require('./infrastructure/afterResponseHandler'),
+  multer = require('multer');
 
-const { PORT, API_BASE_URL } = require('./infrastructure/config');
+const { PORT, API_BASE_URL } = require('./infrastructure/config'),
+  OAuthMiddleware = require('./components/oauth/oAuth.middleware');
 
 const RestAdapterRouter = require('./components/rest_adapter/restAdapter.routes'),
   OAuthRouter = require('./components/oauth/oAuth.routes'),
-  UsersRouter = require('./components/users/users.routes');
+  UsersRouter = require('./components/users/users.routes'),
+  ContentsRouter = require('./components/contents/contents.routes');
 
 const app = express();
 
@@ -28,6 +32,7 @@ app.use(afterResponseHandler.handler);
 // Api Routes
 OAuthRouter.routesConfig(app);
 UsersRouter.routesConfig(app);
+ContentsRouter.routesConfig(app);
 RestAdapterRouter.routesConfig(app);
 
 // view engine setup
@@ -47,6 +52,50 @@ if (process.env.NODE_ENV !== 'production') {
   // Wires up handler for /reload/reload.js route
   reload(app);
 }
+
+const handleError = (err, res) => {
+  console.log(err);
+  res
+    .status(500)
+    .contentType("text/plain")
+    .end("Oops! Something went wrong!");
+},
+upload = multer({
+  dest: "./build/uploads"
+  // you might also want to set some limits: https://github.com/expressjs/multer#limits
+});
+
+app.post(
+  "/upload",
+  upload.single("image" /* name attribute of <file> element in your form */),
+  [
+    OAuthMiddleware.validJWTNeeded,
+    (req, res) => {
+        const tempPath = req.file.path;
+        console.log(req);
+        const targetPath = path.join(__dirname, "../build/uploads/image.png");
+    
+        if (path.extname(req.file.originalname).toLowerCase() === ".png") {
+          fs.rename(tempPath, targetPath, err => {
+            if (err) return handleError(err, res);
+    
+            res
+              .status(200)
+              .json({ url: 'http://localhost:3000/uploads/image.png' });
+          });
+        } else {
+          fs.unlink(tempPath, err => {
+            if (err) return handleError(err, res);
+    
+            res
+              .status(403)
+              .contentType("text/plain")
+              .end("Only .png files are allowed!");
+          });
+        }
+      }
+    ]
+);
 
 // For all requests besides /api, serve the index template based on create-react-app's public/index.html file
 app.get('*', csrfProtection, (req, res) => {

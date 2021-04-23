@@ -33,7 +33,7 @@ module.exports = {
           'Content-Type': 'application/json'
         }
       };
-      console.log(payload);
+      console.log(_params);
       const response = await axios({...payload,..._params});
       status = response.status;
       data = response.data;

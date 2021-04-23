@@ -34,7 +34,7 @@ const RulesGroup = ({indexString, index, filterFields}) => {
   };
 
   return (
-    <div className="border border-secondary p-1">
+    <div className="border border-secondary rounded p-1">
       <div className="btn-group btn-group-toggle mb-1" data-toggle="buttons">
         <label className={`btn btn-sm btn-light ${eval(indexString).combinator== 'and' && 'active'}`}>
           <input type="radio" name="options" id="option1" onClick={() => changeCombinator("and")}/> And

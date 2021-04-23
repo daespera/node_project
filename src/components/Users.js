@@ -167,6 +167,8 @@ const Users = () => {
         params: params
       }),
       _data = [...data.users,...response.data.data];
+      console.log ("user response");
+      console.log(response);
       statusCode = response.status;
       setData(scrolling ? {users: _data} : {users: [...response.data.data]});
       
@@ -178,7 +180,10 @@ const Users = () => {
         addToast('user is not logged in or session has already expired','danger','unauthenticated');
         document.cookie = "access_token=" + '';
       }else{
-        addToast(error.response?.data.message,'danger',error.response?.data.message);
+        console.log("here");
+        console.log(error.message);
+        let msg = error.message === 'Network Error' ? "Connection Lost" : error.response?.data.message;
+        addToast(msg,'danger',error.response?.data.message);
       }
     }
   },
@@ -265,7 +270,6 @@ const Users = () => {
               <button type="button" className={`btn btn-sm btn-link nav-link ${action == 'edit_attributes' && 'active'} ${action == 'add' && 'd-none'}`} onClick={e => setAction('edit_attributes')}>Attributes</button>
             </li>
           </ul>
-
         </div>
         <div className={`card-body ${(action == 'edit_attributes' ) && 'd-none'}`}>
           <div className="form-group row">

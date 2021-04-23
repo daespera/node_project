@@ -58,18 +58,24 @@ code {
   -webkit-transition: all 0.3s;
   -o-transition: all 0.3s;
   transition: all 0.3s;
-  position: relative; }
+  position: relative; 
+  margin: 8px 0px;
+  border-radius: 0rem 0rem .75rem 0rem;
+}
+#sidebar .header{
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
   #sidebar .h6 {
     color: #fff; }
   #sidebar.active {
-    margin-left: -200px; }
+    margin-left: -190px; }
     #sidebar.active .custom-menu {
-      margin-right: -40px; }
-    #sidebar.active .btn.btn-primary:before {
+      margin-right: -24px; }
+    #sidebar.active .btn.btn-light:before {
       padding: 0px;
       font-family: "FontAwesome";
       left: 2px !important; }
-    #sidebar.active .btn.btn-primary:after {
+    #sidebar.active .btn.btn-light:after {
       display: none; }
   #sidebar h1 {
     margin-bottom: 20px;
@@ -119,18 +125,19 @@ code {
         border-bottom: 1px solid #2f89fc; }
   @media (max-width: 991.98px) {
     #sidebar {
-      margin-left: -200px; }
+      margin-left: -190px; }
       #sidebar.active {
         margin-left: 0; }
       #sidebar .custom-menu {
-        margin-right: -40px !important;
+        margin-right: -24px !important;
         top: 5px !important; } }
   #sidebar .custom-menu {
+    margin-top: -5px;
     display: inline-block;
     position: absolute;
     top: 5px;
     right: 0;
-    margin-right: -35px;
+    margin-right: -24px;
     -webkit-transition: 0.3s;
     -o-transition: 0.3s;
     transition: 0.3s; }
@@ -139,15 +146,19 @@ code {
         -webkit-transition: none;
         -o-transition: none;
         transition: none; } }
-    #sidebar .custom-menu .btn.btn-primary {
+    #sidebar .custom-menu .btn.btn-light:hover {
       background: #2f89fc;
+      /*width: 30px;
+      height: 30px;*/ }
+    #sidebar .custom-menu .btn.btn-light {
       border-color: transparent;
       position: relative;
       padding: .100rem .45rem .375rem .45rem;
       color: #000;
+      background: #32373d;
       /*width: 30px;
       height: 30px;*/ }
-      #sidebar .custom-menu .btn.btn-primary:after, #sidebar .custom-menu .btn.btn-primary:before {
+      #sidebar .custom-menu .btn.btn-light:after, #sidebar .custom-menu .btn.btn-light:before {
         position: absolute;
         top: 2px;
         padding: 0px;
@@ -156,7 +167,7 @@ code {
         bottom: 0;
         font-family: "FontAwesome";
         color: #fff; }
-      #sidebar .custom-menu .btn.btn-primary:after {
+      #sidebar .custom-menu .btn.btn-light:after {
         padding: 0px;
         right: 2px; } 
 
@@ -194,10 +205,14 @@ code {
 .table .row:nth-of-type(odd) {
   background: #e9e9e9;
 }
+.table .row:last-child {
+  border-radius: 0rem 0rem .25rem .25rem;
+}
 .table .row.header {
   font-weight: 900;
   color: #ffffff;
   background: #ea6153;
+  border-radius: .25rem .25rem 0rem 0rem;
 }
 .table .row.green {
   background: #27ae60;

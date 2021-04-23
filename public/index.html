@@ -17,7 +17,7 @@
     <script src="/reload/reload.js"></script>
     <% } %>
     <script>
-      if ('serviceWorker' in navigator) {
+      /*if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('./worker.js').then(function(registration) {
             console.log('Worker registration successful', registration.scope);
@@ -29,6 +29,6 @@
         });
       } else {
         console.log('Service Worker is not supported by browser.');
-      }
+      }*/
     </script>
 </html>

@@ -9,6 +9,8 @@ module.exports = filename => {
       return model;
     },
     create: async params => {
+      console.log(params);
+      
       try{
         return await model.create(params);
       }catch(e){
