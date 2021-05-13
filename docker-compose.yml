@@ -34,5 +34,6 @@ client:
     volumes:
        - ./:/home/app/
        - /home/app/node_modules
+       - ./build:/home/app/build
     environment:
       - CHOKIDAR_USEPOLLING=true

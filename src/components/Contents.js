@@ -70,7 +70,8 @@ const Contents = () => {
             "/upload",
           data: bodyFormData,
           headers: {
-            "Content-Type": "multipart/form-data"
+            "Content-Type": "multipart/form-data",
+            "Authorization": 'Bearer ' + document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
           }
         });
         return response.data.url;

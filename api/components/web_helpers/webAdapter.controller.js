@@ -1,5 +1,14 @@
 const  axios = require("axios"),
-  { API_BASE_URL } = require('../../infrastructure/config');
+  path = require('path'),
+  fs = require("fs"),
+  { API_BASE_URL } = require('../../infrastructure/config'),
+  handleError = (err, res) => {
+    console.log(err);
+    res
+      .status(500)
+      .contentType("text/plain")
+      .end("Oops! Something went wrong!");
+  };
 
 module.exports = {
   proxy: async (req, res) => {
@@ -43,5 +52,32 @@ module.exports = {
       data = error.response.data;
     }
     return res.status(status).send(data);
+  },
+
+  imageUpload: async (req, res) => {
+    const tempPath = req.file.path,
+    file = req.jwt.sub+"-"+Date.now(),
+    ext = path.extname(req.file.originalname).toLowerCase(),
+    targetPath = path.join(__dirname, "../../../build/uploads/"+file+ext),
+    extentions = [".png", ".jpg"];
+
+    if (ext.includes(ext)) {
+      fs.rename(tempPath, targetPath, err => {
+        if (err) return handleError(err, res);
+
+        res
+          .status(200)
+          .json({ url: 'http://localhost:3000/uploads/'+file+ext });
+      });
+    } else {
+      fs.unlink(tempPath, err => {
+        if (err) return handleError(err, res);
+
+        res
+          .status(403)
+          .contentType("text/plain")
+          .end("Only .png files are allowed!");
+      });
+    }
   }
 };
